@@ -1,0 +1,132 @@
+{% extends 'inventario/base.html' %}
+{% load static %}
+
+{% block title %}Inventario de Activos{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">
+            <i class="fas fa-boxes text-primary me-2"></i>
+            Listado de Activos Tecnológicos
+        </h2>
+        <a href="{% url 'inventario:activo_create' %}" class="btn btn-primary shadow-sm px-4">
+            <i class="fas fa-plus-circle me-1"></i> Registrar Activo
+        </a>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-muted small text-uppercase">Búsqueda rápida</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="q" value="{{ request.GET.q }}" class="form-control border-start-0" placeholder="Buscar por nombre, código o serie...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Podríamos agregar más filtros aquí en el futuro -->
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Resultados -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Activo / Código</th>
+                            <th>Categoría</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                            <th>Responsable</th>
+                            <th class="text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activo in activos %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    {% if activo.foto %}
+                                        <img src="{{ activo.foto.url }}" alt="{{ activo.nombre }}" class="rounded me-3" style="width: 45px; height: 45px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                            <i class="fas fa-image text-muted small"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ activo.nombre }}</h6>
+                                        <code class="text-primary small">{{ activo.codigo_inventario }}</code>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ activo.categoria.nombre }}</td>
+                            <td>
+                                {% if activo.ubicacion %}
+                                    <span class="text-dark"><i class="fas fa-map-marker-alt text-success me-1 small"></i>{{ activo.ubicacion.nombre }}</span>
+                                {% else %}
+                                    <span class="text-muted small">No asignada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: {{ activo.estado.color_hex|default:'#6c757d' }};">
+                                    <i class="fas fa-{{ activo.estado.icon_name|default:'tag' }} me-1 small"></i>
+                                    {{ activo.estado.nombre }}
+                                </span>
+                            </td>
+                            <td class="small">{{ activo.responsable|default:"-" }}</td>
+                            <td class="text-center pe-4">
+                                <div class="btn-group shadow-sm">
+                                    <a href="{% url 'inventario:activo_detail' activo.pk %}" class="btn btn-sm btn-white border" title="Ver detalle">
+                                        <i class="fas fa-eye text-primary"></i>
+                                    </a>
+                                    <a href="{% url 'inventario:activo_update' activo.pk %}" class="btn btn-sm btn-white border" title="Editar">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="{% url 'inventario:activo_delete' activo.pk %}" class="btn btn-sm btn-white border" title="Eliminar">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <div class="mb-3">
+                                    <i class="fas fa-search d-block fs-1 opacity-25"></i>
+                                </div>
+                                <p class="mb-0">No se encontraron activos registrados.</p>
+                                {% if request.GET.q %}
+                                    <a href="{% url 'inventario:activo_list' %}" class="btn btn-link btn-sm mt-2">Limpiar búsqueda</a>
+                                {% else %}
+                                    <a href="{% url 'inventario:activo_create' %}" class="btn btn-primary btn-sm mt-3">Registrar el primer activo</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Paginación -->
+        {% if is_paginated %}
+        <div class="card-footer bg-white border-top-0 py-3">
+            {% include 'inventario/includes/pagination.html' %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

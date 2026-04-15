@@ -1,0 +1,94 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Historial de Auditoría{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">
+            <i class="fas fa-history text-primary me-2"></i>
+            Logs de Auditoría
+        </h2>
+        <a href="{% url 'inventario:exportar_auditoria_excel' %}" class="btn btn-success shadow-sm">
+            <i class="fas fa-file-excel me-1"></i> Exportar Logs
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-uppercase">Acción</label>
+                    <select name="accion" class="form-select">
+                        <option value="">Todas las acciones</option>
+                        <option value="CREATE" {% if request.GET.accion == 'CREATE' %}selected{% endif %}>Crear</option>
+                        <option value="UPDATE" {% if request.GET.accion == 'UPDATE' %}selected{% endif %}>Actualizar</option>
+                        <option value="DELETE" {% if request.GET.accion == 'DELETE' %}selected{% endif %}>Eliminar</option>
+                        <option value="LOGIN" {% if request.GET.accion == 'LOGIN' %}selected{% endif %}>Login</option>
+                        <option value="LOGOUT" {% if request.GET.accion == 'LOGOUT' %}selected{% endif %}>Logout</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-uppercase">Usuario</label>
+                    <input type="text" name="usuario" value="{{ request.GET.usuario }}" class="form-control" placeholder="Nombre de usuario...">
+                </div>
+                <div class="col-md-4 d-grid align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Fecha / Hora</th>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                            <th>Modelo</th>
+                            <th>Descripción</th>
+                            <th class="text-center pe-4">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="ps-4 py-3">{{ log.fecha_hora|date:"d/m/Y H:i:s" }}</td>
+                            <td><span class="fw-bold">{{ log.usuario_nombre }}</span></td>
+                            <td>
+                                <span class="badge {% if log.accion == 'CREATE' %}bg-success{% elif log.accion == 'DELETE' %}bg-danger{% elif log.accion == 'UPDATE' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ log.get_accion_display }}
+                                </span>
+                            </td>
+                            <td><code>{{ log.modelo }}</code></td>
+                            <td class="small">{{ log.descripcion }}</td>
+                            <td class="text-center pe-4">
+                                <a href="{% url 'inventario:log_detail' log.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-search-plus"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">No se encontraron registros de auditoría.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% if is_paginated %}
+        <div class="card-footer bg-white border-top-0 py-3">
+            {% include 'inventario/includes/pagination.html' %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

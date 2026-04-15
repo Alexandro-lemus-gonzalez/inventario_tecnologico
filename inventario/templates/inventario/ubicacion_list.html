@@ -1,0 +1,54 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Ubicaciones de Inventario{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">
+            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+            Ubicaciones
+        </h2>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Tipo / Nombre</th>
+                            <th>Piso</th>
+                            <th>Responsable</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ubi in ubicaciones %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <span class="badge bg-light text-dark border me-2">{{ ubi.get_tipo_display }}</span>
+                                <span class="fw-bold">{{ ubi.nombre }}</span>
+                            </td>
+                            <td>Piso {{ ubi.piso }}</td>
+                            <td class="small text-muted">{{ ubi.responsable|default:"-" }}</td>
+                            <td>
+                                {% if ubi.activa %}
+                                    <span class="badge bg-success">Activa</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactiva</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">No hay ubicaciones registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

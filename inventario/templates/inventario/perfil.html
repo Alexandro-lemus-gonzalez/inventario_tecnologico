@@ -1,0 +1,114 @@
+{% extends 'inventario/base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row">
+        <!-- Sidebar Perfil -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-sena-green text-white text-center py-4 border-0">
+                    {% if user.perfil.foto %}
+                        <img src="{{ user.perfil.foto.url }}" alt="{{ user.username }}" class="rounded-circle shadow-sm mb-3 border border-3 border-white" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-white text-sena-green rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm" style="width: 120px; height: 120px;">
+                            <i class="fas fa-user fa-4x"></i>
+                        </div>
+                    {% endif %}
+                    <h4 class="fw-bold mb-0 text-white">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="small mb-0 opacity-75 text-white">{{ user.perfil.get_cargo_display }} - {{ user.perfil.get_departamento_display }}</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent px-0 border-0 mb-2">
+                            <p class="small text-muted text-uppercase fw-bold mb-1"><i class="fas fa-envelope me-2"></i>Email</p>
+                            <p class="mb-0 text-dark">{{ user.email|default:"No registrado" }}</p>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 border-0 mb-2">
+                            <p class="small text-muted text-uppercase fw-bold mb-1"><i class="fas fa-phone me-2"></i>Teléfono</p>
+                            <p class="mb-0 text-dark">{{ user.perfil.telefono|default:"No registrado" }}</p>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 border-0 mb-2">
+                            <p class="small text-muted text-uppercase fw-bold mb-1"><i class="fas fa-calendar-alt me-2"></i>Fecha Registro</p>
+                            <p class="mb-0 text-dark">{{ user.date_joined|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'inventario:password_change' %}" class="btn btn-outline-primary btn-sm rounded-pill py-2">
+                            <i class="fas fa-key me-2"></i> Cambiar Contraseña
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario Edición -->
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white py-4 border-0">
+                    <h3 class="fw-bold text-dark mb-0"><i class="fas fa-user-edit text-sena-orange me-2"></i>Editar Información</h3>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Datos de Usuario -->
+                        <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fas fa-id-card me-2"></i>Datos Personales</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label fw-bold">{{ user_form.first_name.label }}</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}<div class="text-danger small mt-1">{{ user_form.first_name.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label fw-bold">{{ user_form.last_name.label }}</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}<div class="text-danger small mt-1">{{ user_form.last_name.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label fw-bold">{{ user_form.email.label }}</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}<div class="text-danger small mt-1">{{ user_form.email.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Datos de Perfil -->
+                        <h5 class="fw-bold text-success mb-4 border-bottom pb-2"><i class="fas fa-briefcase me-2"></i>Información Laboral</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ perfil_form.cargo.id_for_label }}" class="form-label fw-bold">{{ perfil_form.cargo.label }}</label>
+                                {{ perfil_form.cargo }}
+                                {% if perfil_form.cargo.errors %}<div class="text-danger small mt-1">{{ perfil_form.cargo.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ perfil_form.departamento.id_for_label }}" class="form-label fw-bold">{{ perfil_form.departamento.label }}</label>
+                                {{ perfil_form.departamento }}
+                                {% if perfil_form.departamento.errors %}<div class="text-danger small mt-1">{{ perfil_form.departamento.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ perfil_form.telefono.id_for_label }}" class="form-label fw-bold">{{ perfil_form.telefono.label }}</label>
+                                {{ perfil_form.telefono }}
+                                {% if perfil_form.telefono.errors %}<div class="text-danger small mt-1">{{ perfil_form.telefono.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ perfil_form.foto.id_for_label }}" class="form-label fw-bold">{{ perfil_form.foto.label }}</label>
+                                {{ perfil_form.foto }}
+                                {% if perfil_form.foto.errors %}<div class="text-danger small mt-1">{{ perfil_form.foto.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="submit" class="btn btn-sena btn-lg shadow-sm px-5 fw-bold">
+                                <i class="fas fa-save me-2"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

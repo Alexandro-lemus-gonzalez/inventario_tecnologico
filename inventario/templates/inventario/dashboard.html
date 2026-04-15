@@ -1,0 +1,278 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Dashboard - Inventario Tecnológico{% endblock %}
+
+{% block content %}
+<div class="container-fluid mb-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-dark mb-0">
+                <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                Dashboard Administrativo
+            </h2>
+            <p class="text-muted">Estado actual del inventario tecnológico SENA</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group shadow-sm">
+                <a href="{% url 'inventario:reporte_inventario_pdf' %}" class="btn btn-outline-danger">
+                    <i class="fas fa-file-pdf me-1"></i> PDF
+                </a>
+                <a href="{% url 'inventario:exportar_activos_excel' %}" class="btn btn-outline-success">
+                    <i class="fas fa-file-excel me-1"></i> Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicadores Rápidos -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-primary border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Activos</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ total_activos }}</div>
+                        </div>
+                        <div class="bg-primary-subtle p-3 rounded-circle">
+                            <i class="fas fa-boxes fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-success border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Valor Total</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">${{ total_valor|floatformat:2 }}</div>
+                        </div>
+                        <div class="bg-success-subtle p-3 rounded-circle">
+                            <i class="fas fa-dollar-sign fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Mantenimiento</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ mantenimientos }}</div>
+                        </div>
+                        <div class="bg-warning-subtle p-3 rounded-circle">
+                            <i class="fas fa-tools fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-info border-5">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Categorías</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ categorias.count }}</div>
+                        </div>
+                        <div class="bg-info-subtle p-3 rounded-circle">
+                            <i class="fas fa-tags fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_staff %}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'inventario:log_list' %}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-secondary border-5">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Logs de Auditoría</div>
+                                <div class="h3 mb-0 font-weight-bold text-gray-800">{{ total_logs }}</div>
+                            </div>
+                            <div class="bg-secondary-subtle p-3 rounded-circle">
+                                <i class="fas fa-history fa-2x text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Gráficos y Listas -->
+    <div class="row">
+        <!-- Gráfico de Categorías -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-bar me-2"></i>Activos por Categoría (API)</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Estados -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="m-0 font-weight-bold text-success"><i class="fas fa-chart-pie me-2"></i>Estado de los Activos (API)</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Categorías -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-list me-2"></i>Detalle de Categorías</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Categoría</th>
+                                    <th class="text-center">Activos</th>
+                                    <th class="pe-4 text-end">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cat in categorias %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">{{ cat.nombre }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary rounded-pill">{{ cat.num_activos }}</span>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        {% if cat.activa %}
+                                            <span class="text-success small"><i class="fas fa-check-circle"></i></span>
+                                        {% else %}
+                                            <span class="text-danger small"><i class="fas fa-times-circle"></i></span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para Chart.js con API -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. URLs de la API
+        const apiStatsUrl = '/api/activos/estadisticas/';
+
+        // 2. Función para cargar datos de la API
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(apiStatsUrl);
+                if (!response.ok) throw new Error('Error al cargar datos de la API');
+                
+                const data = await response.json();
+                
+                // Actualizar Gráfico de Categorías
+                updateCategoryChart(data.por_categoria);
+                
+                // Actualizar Gráfico de Estados
+                updateStatusChart(data.por_estado);
+                
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // 3. Función para el gráfico de Categorías
+        function updateCategoryChart(categoryData) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            const labels = categoryData.map(item => item.categoria__nombre);
+            const totals = categoryData.map(item => item.total);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cantidad de Activos',
+                        data: totals,
+                        backgroundColor: 'rgba(57, 169, 0, 0.7)',
+                        borderColor: '#39A900',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // 4. Función para el gráfico de Estados
+        function updateStatusChart(statusData) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            const labels = statusData.map(item => item.estado__nombre);
+            const totals = statusData.map(item => item.total);
+            const colors = statusData.map(item => item.estado__color_hex || '#39A900');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: totals,
+                        backgroundColor: colors,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Ejecutar carga inicial
+        loadDashboardData();
+    });
+</script>
+{% endblock %}

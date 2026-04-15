@@ -1,0 +1,182 @@
+{% extends 'inventario/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Editar Activo - {{ form.instance.nombre }}
+    {% else %}
+        Crear Nuevo Activo
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-dark">
+                    <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus-circle{% endif %} text-primary me-2"></i>
+                    {% if form.instance.pk %}
+                        Editar Activo: {{ form.instance.codigo_inventario }}
+                    {% else %}
+                        Registrar Nuevo Activo
+                    {% endif %}
+                </h2>
+                <a href="{% url 'inventario:activo_list' %}" class="btn btn-outline-secondary shadow-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Formulario -->
+            <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Errores generales -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger m-3">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Sección 1: Información Principal -->
+                    <div class="card-body bg-light border-bottom">
+                        <h5 class="card-title text-primary mb-3"><i class="fas fa-id-card me-2"></i>Identificación y Nombre</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.codigo_inventario.id_for_label }}" class="form-label fw-bold">{{ form.codigo_inventario.label }} <span class="text-danger">*</span></label>
+                                {{ form.codigo_inventario }}
+                                {% if form.codigo_inventario.help_text %}<div class="form-text">{{ form.codigo_inventario.help_text }}</div>{% endif %}
+                                {% if form.codigo_inventario.errors %}<div class="text-danger small mt-1">{{ form.codigo_inventario.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">{{ form.nombre.label }} <span class="text-danger">*</span></label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Clasificación y Estado -->
+                    <div class="card-body border-bottom">
+                        <h5 class="card-title text-success mb-3"><i class="fas fa-tags me-2"></i>Clasificación y Ubicación</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label fw-bold">{{ form.categoria.label }} <span class="text-danger">*</span></label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}<div class="text-danger small mt-1">{{ form.categoria.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.ubicacion.id_for_label }}" class="form-label fw-bold">{{ form.ubicacion.label }}</label>
+                                {{ form.ubicacion }}
+                                {% if form.ubicacion.errors %}<div class="text-danger small mt-1">{{ form.ubicacion.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.estado.id_for_label }}" class="form-label fw-bold">{{ form.estado.label }} <span class="text-danger">*</span></label>
+                                {{ form.estado }}
+                                {% if form.estado.errors %}<div class="text-danger small mt-1">{{ form.estado.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 3: Detalles Técnicos -->
+                    <div class="card-body bg-light border-bottom">
+                        <h5 class="card-title text-info mb-3"><i class="fas fa-microchip me-2"></i>Especificaciones Técnicas</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.marca.id_for_label }}" class="form-label fw-bold">{{ form.marca.label }}</label>
+                                {{ form.marca }}
+                                {% if form.marca.errors %}<div class="text-danger small mt-1">{{ form.marca.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.modelo.id_for_label }}" class="form-label fw-bold">{{ form.modelo.label }}</label>
+                                {{ form.modelo }}
+                                {% if form.modelo.errors %}<div class="text-danger small mt-1">{{ form.modelo.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.numero_serie.id_for_label }}" class="form-label fw-bold">{{ form.numero_serie.label }}</label>
+                                {{ form.numero_serie }}
+                                {% if form.numero_serie.errors %}<div class="text-danger small mt-1">{{ form.numero_serie.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}<div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Sección 4: Adquisición -->
+                    <div class="card-body border-bottom">
+                        <h5 class="card-title text-warning mb-3"><i class="fas fa-hand-holding-usd me-2"></i>Adquisición y Responsable</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.fecha_adquisicion.id_for_label }}" class="form-label fw-bold">{{ form.fecha_adquisicion.label }}</label>
+                                {{ form.fecha_adquisicion }}
+                                {% if form.fecha_adquisicion.errors %}<div class="text-danger small mt-1">{{ form.fecha_adquisicion.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.valor_adquisicion.id_for_label }}" class="form-label fw-bold">{{ form.valor_adquisicion.label }}</label>
+                                {{ form.valor_adquisicion }}
+                                {% if form.valor_adquisicion.errors %}<div class="text-danger small mt-1">{{ form.valor_adquisicion.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.responsable.id_for_label }}" class="form-label fw-bold">{{ form.responsable.label }}</label>
+                                {{ form.responsable }}
+                                {% if form.responsable.errors %}<div class="text-danger small mt-1">{{ form.responsable.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 5: Multimedia y Otros -->
+                    <div class="card-body bg-light">
+                        <h5 class="card-title text-dark mb-3"><i class="fas fa-camera me-2"></i>Multimedia y Observaciones</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.foto.id_for_label }}" class="form-label fw-bold">{{ form.foto.label }}</label>
+                                {{ form.foto }}
+                                {% if form.foto.errors %}<div class="text-danger small mt-1">{{ form.foto.errors }}</div>{% endif %}
+                                {% if form.instance.foto %}
+                                    <div class="mt-2">
+                                        <p class="small mb-1">Imagen actual:</p>
+                                        <img src="{{ form.instance.foto.url }}" alt="Imagen actual" class="img-thumbnail" style="max-height: 100px;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.activo }}
+                                    <label class="form-check-label fw-bold" for="{{ form.activo.id_for_label }}">
+                                        {{ form.activo.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.observaciones.id_for_label }}" class="form-label fw-bold">{{ form.observaciones.label }}</label>
+                            {{ form.observaciones }}
+                            {% if form.observaciones.errors %}<div class="text-danger small mt-1">{{ form.observaciones.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Footer / Botones -->
+                    <div class="card-footer bg-white p-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'inventario:activo_list' %}" class="btn btn-secondary px-4">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="fas fa-save me-1"></i> 
+                                {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %} Activo
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
