@@ -98,10 +98,13 @@ El sistema cuenta con una API para consulta y gestión de datos:
 
 ## 📸 Capturas del sistema
 
-🔹 Dashboard  
-(Aquí puedes agregar imagen)
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
 
-🔹 Lista de activos  
+### Lista de activos
+![Lista de activos](screenshots/activos.png)
+
+### Crear activo
 (Aquí puedes agregar imagen)
 
 ---
