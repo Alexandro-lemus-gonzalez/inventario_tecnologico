@@ -105,7 +105,7 @@ El sistema cuenta con una API para consulta y gestión de datos:
 ![Lista de activos](screenshots/activos.png)
 
 ### Crear activo
-(Aquí puedes agregar imagen)
+![Crear activo](screenshots/crear_activo.jpeg)
 
 ---
 
